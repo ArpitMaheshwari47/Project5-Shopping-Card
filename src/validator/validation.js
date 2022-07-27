@@ -1,36 +1,64 @@
+const aws = require("aws-sdk")
+
+aws.config.update({
+  accessKeyId: "AKIAY3L35MCRVFM24Q7U",
+  secretAccessKey: "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",
+  region: "ap-south-1"
+})
 
 
-//request body validation (required: true)
+let uploadFile = async (file) => {
+  return new Promise(function (resolve, reject) {
+    // this function will upload file to aws and return the link
+    let s3 = new aws.S3({ apiVersion: '2006-03-01' }); // we will be using the s3 service of aws
+
+    var uploadParams = {
+      ACL: "public-read",
+      Bucket: "classroom-training-bucket",  //HERE
+      Key: "project5/" + file.originalname, //HERE 
+      Body: file.buffer
+    }
+    s3.upload(uploadParams, function (err, data) {
+      if (err) {
+        return reject({ "error": err })
+      }
+     
+      return resolve(data.Location)
+    })
+  })
+}
+
+// const isValidFiles = function(files) {
+//   if(files && files.length > 0)
+//   return true
+// }
+
 const isValidRequestBody = function (reqbody) {
-    if (!Object.keys(reqbody).length) {
-        return false;
-    }
-    return true;
+  if (!Object.keys(reqbody).length) {
+      return false;
+  }
+  return true;
 };
+const isValidFiles = function(files){
+    if (files && files.length > 0)
+    return true
+}
 
-// string validation (required: true)
+
 const isValid = function (value) {
-    if (typeof value === "undefined" || typeof value === null) return false;
-    if (typeof value === "string" && value.trim().length == 0) return false;
-    if (typeof value === "string") return true;
-};
-
-// email validation
-const isValidEmail = function (email) {
-    const pattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-    return pattern.test(email); // returns a boolean
-};
-const isvalidPincode = (value) => ({}.toString.call(value) == '[object Number]') ? true : false //{}.toString.call(value) == '[object Number]'
-const isValidPassword = function (password) {
-    if (password.length >= 8 && password.length <= 15) {
-        return true;
-    }
-    return false;
-};
-const isValidPhone = function (phone) {
-    const pattern = /^(?:(?:\+|0{0,2})91(\s*[\-]\s*)?|[0]?)?[6789]\d{9}$/;
-    return pattern.test(phone); // returns a boolean
-};
+    if (typeof value === 'undefined' || value === null) return false
+    if (typeof value === 'string' && value.trim().length === 0) return false
+    return true;
+}
 
 
-module.exports = {isValidRequestBody,isValidEmail,isValid,isvalidPincode,isValidPassword,isValidPhone}
+
+  
+
+ let nameRegex = /^[.a-zA-Z\s]+$/
+ let emailRegex = /^[a-z]{1}[a-z0-9._]{1,100}[@]{1}[a-z]{2,15}[.]{1}[a-z]{2,10}$/
+ let phoneRegex = /^(\+91[\-\s]?)?[0]?(91)?[6789]\d{9}$/
+ let installRegex = /^[0-9]*$/
+ let passRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,15}$/
+
+module.exports={uploadFile, isValid,isValidFiles,isValidRequestBody, nameRegex,emailRegex, phoneRegex, installRegex,passRegex}

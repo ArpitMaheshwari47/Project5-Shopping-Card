@@ -1,4 +1,3 @@
-
 const jwt = require('jsonwebtoken')
 const Authentication = async function (req, res, next) {
   try {
